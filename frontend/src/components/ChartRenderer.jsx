@@ -21,12 +21,21 @@ const ChartRenderer = ({ data, chartType, selectedColumns }) => {
   console.log('Chart Type:', chartType);
 
   try {
-    if (!data.length || !chartType) {
-      return <p className="text-gray-600 text-center">No chart data available.</p>;
+    if (!data || data.length === 0) {
+      return <p className="text-gray-600 text-center">No data available.</p>;
     }
+    
+    if (!chartType || !["Bar", "Pie", "Line", "Area"].includes(chartType)) {
+      return <p className="text-gray-600 text-center">Invalid chart type.</p>;
+    }
+    
 
-    const xAxisKey = selectedColumns[0]; // Typically sales_month
-    const yAxisKey = selectedColumns[1]; // Typically total_quantity_sold
+    const xAxisKey = selectedColumns?.x_axis; // Correct way to access
+    const yAxisKey = selectedColumns?.y_axis;
+
+    if (!xAxisKey || !yAxisKey) {
+      return <p className="text-gray-600 text-center">No valid columns for chart.</p>;
+    }
 
     return (
       <Card className="p-4 bg-white shadow-md rounded-lg">

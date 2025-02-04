@@ -68,23 +68,32 @@ def suggest_chart(question: str, df: pd.DataFrame):
         temperature=0.7
     )
 
-    # Extract response text
-    response_text = response.choices[0].message.content
-    print(f"🔍 GPT-4 Raw Response: {response_text}")  # Debugging step
-
-    # Check if the response is empty or invalid
-    if not response_text.strip():
-        print("❌ GPT-4 response is empty or invalid.")
-        return None, {}, {}
-
-    # Try parsing as JSON
     try:
-        result = json.loads(response_text.strip())
+        response_text = response.choices[0].message.content.strip()
+
+        # Debugging: Print raw response to check its format
+        print(f"🔍 GPT-4 Raw Response: {response_text}")
+
+        if not response_text:
+            print("❌ Empty response from GPT-4")
+            return None, {}, {}
+
+        # Ensure response is valid JSON
+        if not response_text.startswith("{") or not response_text.endswith("}"):
+            print("⚠️ Response is not in valid JSON format, attempting cleanup.")
+            response_text = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if response_text:
+                response_text = response_text.group()
+            else:
+                print("❌ Unable to extract valid JSON.")
+                return None, {}, {}
+
+        result = json.loads(response_text)
+
         best_chart = result.get("best_chart")
         selected_columns = result.get("selected_columns", {})
         other_settings = result.get("other_settings", {})
 
-        # Ensure values are valid before returning
         if not best_chart or not selected_columns:
             print("⚠️ GPT-4 did not return valid chart recommendations.")
             return None, {}, {}
@@ -92,5 +101,5 @@ def suggest_chart(question: str, df: pd.DataFrame):
         return best_chart, selected_columns, other_settings
 
     except json.JSONDecodeError as e:
-        print(f"❌ Error parsing LLM response as JSON: {e}")
+        print(f"❌ JSON Parsing Error: {e}")
         return None, {}, {}
