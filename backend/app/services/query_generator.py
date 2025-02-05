@@ -35,7 +35,7 @@ def generate_sql(question: str):
     prompt = f"Schema: {SCHEMA_DESCRIPTION}\nUser Question: {question}\nGenerate a MySQL-compatible SQL query."
 
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=[{"role": "system", "content": "You are a MySQL expert."}, {"role": "user", "content": prompt}],
     )
 
