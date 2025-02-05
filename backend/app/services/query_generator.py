@@ -29,20 +29,43 @@ Relationships:
 Important Notes:
 - The column total_price exists in the order_items table.
 - The sales table contains details of each sale, and you may need to join it with order_items to get the total_price of each sale.
+- Ensure that 'products.category' refers to 'categories.category_id'.
+- Please make sure that customer_id is NOT ambiguous.
 """
 
 def generate_sql(question: str):
-    prompt = f"Schema: {SCHEMA_DESCRIPTION}\nUser Question: {question}\nGenerate a MySQL-compatible SQL query."
+    attempt = 0
+    sql_query = None
 
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role": "system", "content": "You are a MySQL expert."}, {"role": "user", "content": prompt}],
-    )
+    while attempt < 3 and sql_query is None:
+        try:
+            attempt += 1
+            prompt = f"Schema: {SCHEMA_DESCRIPTION}\nUser Question: {question}\nGenerate a MySQL-compatible SQL query."
 
-    response_text = response.choices[0].message.content  
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[{"role": "system", "content": "You are a MySQL expert."}, {"role": "user", "content": prompt}],
+            )
 
-    # Extract SQL query from code block
-    pattern = r"```sql\s*(.*?)\s*```"
-    matches = re.findall(pattern, response_text, re.DOTALL)
+            response_text = response.choices[0].message.content  
 
-    return matches[0].replace("\n", " ").strip() if matches else None
+            # Extract SQL query from code block
+            pattern = r"```sql\s*(.*?)\s*```"
+            matches = re.findall(pattern, response_text, re.DOTALL)
+
+            if matches:
+                sql_query = matches[0].replace("\n", " ").strip()
+            else:
+                raise ValueError("Invalid SQL query format returned from LLM")
+
+        except Exception as e:
+            print(f"Attempt {attempt} failed: {e}")
+            if attempt < 3:
+                # Modify prompt to mention error and ask for retry
+                prompt = f"Schema: {SCHEMA_DESCRIPTION}\nUser Question: {question}\nPrevious Error: {str(e)}\nPlease try again and fix the error."
+            else:
+                # After 3 attempts, raise the error and stop further attempts.
+                print(f"Error after 3 attempts: {e}")
+                raise e
+
+    return sql_query

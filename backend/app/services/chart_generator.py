@@ -13,7 +13,7 @@ def decimal_to_float(obj):
 
 def suggest_chart(question: str, df: pd.DataFrame):
     """
-    This function sends the data and question to GPT-4 and lets it decide the best chart for the query.
+    This function sends the data and question to GPT-4o and lets it decide the best chart for the query.
     """
 
     # Initialize selected_columns to an empty dictionary (or use default values as needed)
@@ -28,7 +28,7 @@ def suggest_chart(question: str, df: pd.DataFrame):
     data_sample = df.head(10).to_dict(orient="records")
     data_sample = json.loads(json.dumps(data_sample, default=decimal_to_float))
 
-    # Prepare messages for GPT-4
+    # Prepare messages for GPT-4o
     messages = [
         {"role": "system", "content": "You are a data visualization expert."},
         {"role": "user", "content": f"""
@@ -49,7 +49,7 @@ def suggest_chart(question: str, df: pd.DataFrame):
         **Return output in this exact format:**
         ```json
         {{
-            "best_chart": "Pie",
+            "best_chart": "Line",
             "selected_columns": {{
                 "x_axis": "order_month",
                 "y_axis": "total_quantity"
@@ -64,9 +64,9 @@ def suggest_chart(question: str, df: pd.DataFrame):
         """}
     ]
 
-    # Send request to GPT-4
+    # Send request to GPT-4o
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o",
         messages=messages,
         max_tokens=1000,
         temperature=0.7
@@ -76,10 +76,10 @@ def suggest_chart(question: str, df: pd.DataFrame):
         response_text = response.choices[0].message.content.strip()
 
         # Debugging: Print raw response to check its format
-        print(f"🔍 GPT-4 Raw Response: {response_text}")
+        print(f"🔍 GPT-4o Raw Response: {response_text}")
 
         if not response_text:
-            print("❌ Empty response from GPT-4")
+            print("❌ Empty response from GPT-4o")
             return None, {}, {}
 
         # Ensure response is valid JSON
@@ -99,12 +99,14 @@ def suggest_chart(question: str, df: pd.DataFrame):
         other_settings = result.get("other_settings", {})
 
         if not best_chart or not selected_columns:
-            print("⚠️ GPT-4 did not return valid chart recommendations.")
+            print("⚠️ GPT-4o did not return valid chart recommendations.")
             return None, {}, {}
 
-        # Check if Pie chart is a good fit before making the request to GPT-4
-        if 'x_axis' in selected_columns and len(df[selected_columns['x_axis']].unique()) <= 10:  # Avoid too many slices
-            best_chart = "Pie"
+        # if 'x_axis' in selected_columns and selected_columns['x_axis'] in df.columns:
+        #     # Only proceed if the column exists
+        #     if len(df[selected_columns['x_axis']].unique()) <= 10:  # Avoid too many slices
+        #         best_chart = "Pie"
+
         
         return best_chart, selected_columns, other_settings
 

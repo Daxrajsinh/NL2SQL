@@ -23,7 +23,7 @@ def generate_summary(question: str, sql_query: str, df: pd.DataFrame) -> str:
     """
 
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o",
         messages=[{"role": "user", "content": prompt}]
     )
 
