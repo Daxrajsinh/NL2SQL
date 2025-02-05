@@ -1,29 +1,39 @@
-import { useState } from "react";
-import { FaPaperPlane } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaPaperPlane } from "react-icons/fa"; // Importing FaPaperPlane icon
+import { CircularProgress } from "@mui/material"; // Importing CircularProgress for a loading spinner
 
-const DataInputForm = ({ onSubmit }) => {
+const DataInputForm = ({ onSubmit, loading }) => {
   const [question, setQuestion] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(question);
+    if (question.trim()) {
+      onSubmit(question); // Trigger the onSubmit function passed from Home
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center space-x-4">
-      <input
-        type="text"
-        className="p-4 w-full bg-white text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary shadow-lg"
-        placeholder="Enter your question"
-        value={question}
-        onChange={(e) => setQuestion(e.target.value)}
-      />
-      <button
-        type="submit"
-        className="bg-primary text-white p-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-primary transition"
-      >
-        <FaPaperPlane />
-      </button>
+    <form onSubmit={handleSubmit}>
+      <div className="flex items-center space-x-2">
+        <input
+          type="text"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Ask your question..."
+          className="border border-gray-300 rounded-md p-2 w-full"
+        />
+        <button
+          type="submit"
+          disabled={loading} // Disable button while loading
+          className="bg-blue-500 text-white p-2 rounded-full flex items-center justify-center disabled:opacity-50"
+        >
+          {loading ? (
+            <CircularProgress size={24} style={{ color: "white" }} /> // Directly setting the color to white
+          ) : (
+            <FaPaperPlane /> // FaPaperPlane icon
+          )}
+        </button>
+      </div>
     </form>
   );
 };

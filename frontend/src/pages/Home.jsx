@@ -10,8 +10,10 @@ const Home = () => {
   const [chartType, setChartType] = useState("");
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [summary, setSummary] = useState("");
+  const [loading, setLoading] = useState(false); // Track loading state
 
   const handleQuerySubmit = async (question) => {
+    setLoading(true); // Start loading when query is submitted
     const response = await fetchGeneratedSQL(question);
 
     if (response) {
@@ -21,13 +23,14 @@ const Home = () => {
       setSelectedColumns(response.selected_columns);
       setSummary(response.summary || "No summary available.");
     }
+    setLoading(false); // Stop loading once the query result is returned
   };
 
   return (
     <div className="w-screen h-screen bg-white text-black flex flex-col items-center p-6">
       
       {/* Header */}
-      <h1 className="text-3xl font-bold text-center mb-4">Natural Language to SQL Visualizer</h1>
+      <h1 className="text-3xl font-bold text-center mb-4">Natural Language to SQL</h1>
 
       {/* Main Layout - Grid */}
       <div className="grid grid-cols-2 gap-6 w-full max-w-6xl h-full">
@@ -37,7 +40,7 @@ const Home = () => {
           
           {/* Query Input Box */}
           <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-            <DataInputForm onSubmit={handleQuerySubmit} />
+            <DataInputForm onSubmit={handleQuerySubmit} loading={loading} />
           </div>
 
           {/* Query Result Table */}
@@ -53,7 +56,7 @@ const Home = () => {
           {/* Chart Visualization */}
           <div className="bg-gray-100 p-4 rounded-lg shadow-md flex-1">
             <h2 className="text-lg font-semibold text-black mb-2">Chart Visualization</h2>
-              <ChartRenderer data={data} chartType={chartType} selectedColumns={selectedColumns} />
+            <ChartRenderer data={data} chartType={chartType} selectedColumns={selectedColumns} />
           </div>
 
           {/* Summary */}

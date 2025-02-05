@@ -16,6 +16,9 @@ def suggest_chart(question: str, df: pd.DataFrame):
     This function sends the data and question to GPT-4 and lets it decide the best chart for the query.
     """
 
+    # Initialize selected_columns to an empty dictionary (or use default values as needed)
+    selected_columns = {}
+
     # If there's no data, return a default response
     if df.empty:
         print("⚠️ No data available, returning default response.")
@@ -39,13 +42,14 @@ def suggest_chart(question: str, df: pd.DataFrame):
 
         **Task:** 
         - Determine the most suitable chart type for this data from ["Bar", "Pie", "Line", "Area", "Scatter", "Heatmap"].
+        - Also NEVER return Multiple suitable charts.
         - Return `selected_columns` containing `"x_axis"` and `"y_axis"` keys.
         - Ensure output is formatted as JSON.
 
         **Return output in this exact format:**
         ```json
         {{
-            "best_chart": "Line",
+            "best_chart": "Pie",
             "selected_columns": {{
                 "x_axis": "order_month",
                 "y_axis": "total_quantity"
@@ -98,6 +102,10 @@ def suggest_chart(question: str, df: pd.DataFrame):
             print("⚠️ GPT-4 did not return valid chart recommendations.")
             return None, {}, {}
 
+        # Check if Pie chart is a good fit before making the request to GPT-4
+        if 'x_axis' in selected_columns and len(df[selected_columns['x_axis']].unique()) <= 10:  # Avoid too many slices
+            best_chart = "Pie"
+        
         return best_chart, selected_columns, other_settings
 
     except json.JSONDecodeError as e:
