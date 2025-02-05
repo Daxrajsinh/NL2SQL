@@ -9,28 +9,40 @@ Tables:
 - customers(customer_id, first_name, last_name, email, phone, address, registration_date): This table stores information about customers, including their contact details and the date they registered.
 
 - orders(order_id, customer_id, product_id, order_date, total_amount): This table stores details about orders, including the customer who placed the order, the product ordered, and the total amount.
+    - `customer_id` refers to the `customers.customer_id` (foreign key).
+    - `product_id` refers to the `products.product_id` (foreign key).
 
 - products(product_id, product_name, price, category): This table contains information about the products, including the name, price, and category.
+    - `category` refers to `categories.category_id` (foreign key).
 
 - sales(sale_id, order_id, product_id, quantity, sale_date): This table stores the details of sales, including which product was sold, in what quantity, and on what date.
+    - `order_id` refers to `orders.order_id` (foreign key).
+    - `product_id` refers to `products.product_id` (foreign key).
 
 - order_items(order_item_id, order_id, product_id, quantity, unit_price, total_price, discount): This table stores individual items from each order, including the price per unit, total price, and any discount applied.
+    - `order_id` refers to `orders.order_id` (foreign key).
+    - `product_id` refers to `products.product_id` (foreign key).
+    - The `total_price` column represents the total value of the items in the order before any discount is applied.
+    - The `discount` column represents any discount applied to the items.
 
 - categories(category_id, category_name, description): This table contains product categories, with a description for each category.
 
 Relationships:
-- orders.customer_id refers to customers.customer_id.
-- orders.product_id refers to products.product_id.
-- sales.order_id refers to orders.order_id.
-- sales.product_id refers to products.product_id.
-- order_items.order_id refers to orders.order_id.
-- order_items.product_id refers to products.product_id.
+- `orders.customer_id` refers to `customers.customer_id` (foreign key relationship).
+- `orders.product_id` refers to `products.product_id` (foreign key relationship).
+- `sales.order_id` refers to `orders.order_id` (foreign key relationship).
+- `sales.product_id` refers to `products.product_id` (foreign key relationship).
+- `order_items.order_id` refers to `orders.order_id` (foreign key relationship).
+- `order_items.product_id` refers to `products.product_id` (foreign key relationship).
+- `products.category` refers to `categories.category_id` (foreign key relationship).
 
 Important Notes:
-- The column total_price exists in the order_items table.
-- The sales table contains details of each sale, and you may need to join it with order_items to get the total_price of each sale.
-- Ensure that 'products.category' refers to 'categories.category_id'.
-- Please make sure that customer_id is NOT ambiguous.
+- The `total_price` column exists in the `order_items` table and represents the total cost of the items in the order before any discount.
+- The `sales` table contains sales details, and you may need to join it with the `order_items` table to get the full sales price information.
+- The `customer_id` column in `orders` is used to link to the `customers` table, and it should not be ambiguous in the queries.
+- `products.category` should refer to the `categories.category_id` to identify the correct category for each product.
+
+Please make sure that all references are properly resolved (e.g., `customer_id` from `orders` must be unambiguous, and `category` should refer to `categories.category_id`).
 """
 
 def generate_sql(question: str):
