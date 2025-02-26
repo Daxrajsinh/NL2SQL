@@ -1,6 +1,6 @@
 # NL2SQL Project
 
-NL2SQL is a full-stack project that allows users to input natural language questions and converts them into SQL queries. It visualizes the results in charts such as line graphs, bar charts, etc., and also generates summaries.
+NL2SQL is a project that allows users to input natural language questions and it converts them into SQL queries. It visualizes the results in charts such as line graphs, bar charts, etc., and also generates summaries.
 
 ## Backend
 
